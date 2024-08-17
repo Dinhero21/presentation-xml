@@ -1,0 +1,41 @@
+{
+  "name": "presentation-xml",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "scripty",
+    "watch:build": "scripty",
+    "watch": "scripty"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "config": {
+    "scripty": {
+      "parallel": true,
+      "path": "script"
+    }
+  },
+  "dependencies": {
+    "@rollup/plugin-multi-entry": "^6.0.1",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "http-server": "^14.1.1",
+    "rollup": "^4.20.0",
+    "scripty": "^2.1.1",
+    "tslib": "^2.6.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^22.4.0",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.9.0",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.1.0"
+  }
+}

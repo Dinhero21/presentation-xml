@@ -1,0 +1,12 @@
+<presentation>
+  <Intro>
+    <title>Among Us</title>
+    <subtitle>is sus</subtitle>
+  </Intro>
+  <transition>fade</transition>
+  <QA>
+    <question>What is it?</question>
+    <answer>Among Us is a video game made by Innersloth</answer>
+    <answer>that got <italic>really</italic> popular during the 2019-2023 Covid Pandemic</answer>
+  </QA>
+</presentation>
