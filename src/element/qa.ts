@@ -4,18 +4,14 @@ import { renderText } from './text.js';
 
 registerElement('QA', (element) => {
   element.custom.set('question', (element) => {
-    if (element.getAttribute('size') === null)
-      element.setAttribute('size', '5em');
+    element.default.size = '5em';
 
     return renderText(element);
   });
 
   element.custom.set('answer', (element) => {
-    if (element.getAttribute('size') === null)
-      element.setAttribute('size', '2em');
-
-    if (element.getAttribute('color') === null)
-      element.setAttribute('color', 'gray');
+    element.default.size = '2em';
+    element.default.color = 'gray';
 
     return renderText(element);
   });

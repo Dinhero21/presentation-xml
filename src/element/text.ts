@@ -3,33 +3,32 @@ import { PresentationElement, registerElement } from './index.js';
 export function renderText(element: PresentationElement) {
   element.custom.set('bold', (element) => {
     const b = document.createElement('b');
-    element.renderChildren(b);
+    element.renderInto(b);
 
     return b;
   });
 
   element.custom.set('italic', (element) => {
     const i = document.createElement('i');
-    element.renderChildren(i);
+    element.renderInto(i);
 
     return i;
   });
 
-  const p = document.createElement('p');
-  element.renderChildren(p);
-
-  let color = element.getAttribute('color');
-  let size = element.getAttribute('size');
-  const weight = element.getAttribute('weight');
-  const family = element.getAttribute('family');
-
-  color ??=
+  element.default.color ??=
     {
       light: 'black',
       dark: 'white',
     }[element.getTheme()] ?? '';
+  element.default.size ??= '3em';
 
-  size ??= '3em';
+  const p = document.createElement('p');
+  element.renderInto(p);
+
+  const color = element.getAttribute('color');
+  const size = element.getAttribute('size');
+  const weight = element.getAttribute('weight');
+  const family = element.getAttribute('family');
 
   if (color !== null) p.style.color = color;
   if (size !== null) p.style.fontSize = size;

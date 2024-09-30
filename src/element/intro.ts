@@ -4,17 +4,14 @@ import { renderText } from './text.js';
 
 registerElement('Intro', (element) => {
   element.custom.set('title', (element) => {
-    if (element.getAttribute('size') === null)
-      element.setAttribute('size', '10em');
+    element.default.size = '10em';
 
     return renderText(element);
   });
 
   element.custom.set('subtitle', (element) => {
-    if (element.getAttribute('color') === null)
-      element.setAttribute('color', 'gray');
-    if (element.getAttribute('size') === null)
-      element.setAttribute('size', '5em');
+    element.default.color = 'gray';
+    element.default.size = '5em';
 
     return renderText(element);
   });

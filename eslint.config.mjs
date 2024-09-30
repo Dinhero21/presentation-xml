@@ -9,7 +9,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   { languageOptions: { globals: globals.browser } },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.strict,
   {
     plugins: {
       'simple-import-sort': simpleImportSort,
@@ -35,6 +35,11 @@ export default tseslint.config(
       'no-case-declarations': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'no-constant-condition': ['error', { checkLoops: false }],
+    },
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+      },
     },
   },
   prettier,

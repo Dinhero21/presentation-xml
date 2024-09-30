@@ -1,8 +1,11 @@
 import { ELEMENT_MAP, PresentationElement, Renderer } from './element/index.js';
 
+/**
+ * Node (commonly XMLElement) -> HTMLElement
+ */
 export default function render(
   node: Node,
-  custom = new Map<string, Renderer>()
+  custom = new Map<string, Renderer>(),
 ): Node {
   if (!(node instanceof Element)) return node.cloneNode(true);
 
@@ -12,7 +15,7 @@ export default function render(
 
   if (name.startsWith('html.')) {
     const html = document.createElement(name.slice('html.'.length));
-    element.renderChildren(html);
+    element.renderInto(html);
 
     return html;
   }

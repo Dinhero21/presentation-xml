@@ -5,7 +5,7 @@ export function renderSlide(element: PresentationElement) {
   div.style.width = '100vw';
   div.style.height = '100vh';
 
-  element.renderChildren(div);
+  element.renderInto(div);
 
   return div;
 }

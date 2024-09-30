@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "scripty",
     "watch:build": "scripty",
-    "watch": "scripty"
+    "run": "scripty",
+    "watch:run": "scripty",
+    "watch": "scripty",
+    "lint": "scripty"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +37,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
+    "prettier": "^3.3.3",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.1.0"
   }

@@ -5,8 +5,7 @@ registerElement('presentation', (element) => {
   div.style.width = '100vw';
   div.style.height = '100vh';
 
-  // TODO: Not use document.body
-  document.body.style.backgroundColor =
+  div.style.backgroundColor =
     {
       light: 'white',
       dark: '#1f1f1f',
@@ -79,8 +78,8 @@ registerElement('presentation', (element) => {
 
     i += direction;
 
-    const oldRendered = element.render(oldChild);
-    const newRendered = element.render(newChild);
+    const oldRendered = element.renderNode(oldChild);
+    const newRendered = element.renderNode(newChild);
 
     const oldDiv = document.createElement('div');
     oldDiv.appendChild(oldRendered);
@@ -130,7 +129,7 @@ registerElement('presentation', (element) => {
 
   function renderChild(): void {
     const child = element.children[i];
-    const rendered = element.render(child);
+    const rendered = element.renderNode(child);
 
     div.replaceChildren(rendered);
   }
