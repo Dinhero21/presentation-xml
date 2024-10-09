@@ -1,20 +1,88 @@
 import { registerElement } from './index.js';
 
 registerElement('presentation', (element) => {
-  const div = document.createElement('div');
-  div.style.width = '100vw';
-  div.style.height = '100vh';
+  type Transition = (data: {
+    oldDiv: HTMLDivElement;
+    newDiv: HTMLDivElement;
+    transitionDiv: HTMLDivElement;
+    args: string[];
+    durationMS: number;
+  }) => Promise<void>;
 
-  div.style.backgroundColor =
+  const transitions: Record<string, Transition> = {
+    async none() {
+      renderSlide();
+    },
+    async fade({ oldDiv, newDiv, transitionDiv, durationMS }) {
+      transitionDiv.style.display = 'grid';
+
+      oldDiv.style.gridColumn = '1';
+      oldDiv.style.gridRow = '1';
+
+      newDiv.style.gridColumn = '1';
+      newDiv.style.gridRow = '1';
+
+      oldDiv.style.backgroundColor = newDiv.style.backgroundColor =
+        slideDiv.style.backgroundColor;
+
+      const start = Date.now();
+
+      while (true) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        const tMS = Date.now() - start;
+        const t = tMS / durationMS;
+
+        if (t >= 1) break;
+
+        newDiv.style.opacity = String(t);
+      }
+
+      renderSlide();
+    },
+    async slide({ oldDiv, newDiv, transitionDiv, durationMS, args }) {
+      const axis: 'X' | 'Y' = args.includes('vertical') ? 'Y' : 'X';
+
+      transitionDiv.style.display = 'grid';
+
+      oldDiv.style.gridColumn = '1';
+      oldDiv.style.gridRow = '1';
+
+      newDiv.style.gridColumn = '1';
+      newDiv.style.gridRow = '1';
+
+      const start = Date.now();
+
+      while (true) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        const tMS = Date.now() - start;
+        const t = tMS / durationMS;
+
+        if (t >= 1) break;
+
+        oldDiv.style.transform = `translate${axis}(${-t * direction * 100}%)`;
+        newDiv.style.transform = `translate${axis}(${(1 - t) * direction * 100}%)`;
+      }
+
+      renderSlide();
+    },
+  };
+
+  const slideDiv = document.createElement('div');
+  slideDiv.style.width = '100vw';
+  slideDiv.style.height = '100vh';
+
+  slideDiv.style.backgroundColor =
     {
       light: 'white',
       dark: '#1f1f1f',
     }[element.getTheme()] ?? '';
 
-  const min = 0;
-  const max = element.children.length - 1;
+  const minIndex = 0;
+  const maxIndex = element.children.length - 1;
 
-  let i = min;
+  let i = minIndex;
 
   let direction = 0;
 
@@ -36,22 +104,49 @@ registerElement('presentation', (element) => {
 
     i += direction;
 
-    if (i < min) i = min;
-    if (i > max) i = max;
+    if (i < minIndex) i = minIndex;
+    if (i > maxIndex) i = maxIndex;
 
-    renderChild();
+    updateSlide();
   });
 
-  renderChild();
+  updateSlide();
 
-  element.custom.set('transition', (transitionElement) => {
+  return slideDiv;
+
+  function updateSlide(): void {
+    const child = element.children[i];
+
+    let transitionArgs: string[] = [];
+
+    const transition = element.getAttribute('transition');
+    if (transition !== null) {
+      transitionArgs = transition.split(' ');
+    }
+
+    if (child.tagName.toLowerCase() === 'transition') {
+      executeTransition([...transitionArgs, ...child.innerHTML.split(' ')]);
+
+      return;
+    }
+
+    executeTransition(transitionArgs);
+  }
+
+  function executeTransition(args: string[]): void {
     let durationMS = 200;
 
-    const transitions = { fade };
+    let transition: Transition = transitions.none;
 
-    let transition = fade;
+    const extra: string[] = [];
 
-    for (const arg of transitionElement.original.innerHTML.split(' ')) {
+    for (const arg of args) {
+      if (arg in transitions) {
+        transition = transitions[arg as keyof typeof transitions];
+
+        continue;
+      }
+
       if (arg.endsWith('s')) {
         let durationS = parseFloat(arg);
 
@@ -64,13 +159,7 @@ registerElement('presentation', (element) => {
         continue;
       }
 
-      if (arg in transitions) {
-        transition = transitions[arg as keyof typeof transitions];
-
-        continue;
-      }
-
-      throw new Error(`Unknown transition argument: ${arg}`);
+      extra.push(arg);
     }
 
     const oldChild = element.children[i - direction];
@@ -87,50 +176,26 @@ registerElement('presentation', (element) => {
     const newDiv = document.createElement('div');
     newDiv.appendChild(newRendered);
 
-    const div = document.createElement('div');
-    div.appendChild(oldDiv);
-    div.appendChild(newDiv);
+    const transitionDiv = document.createElement('div');
+    transitionDiv.appendChild(oldDiv);
+    transitionDiv.appendChild(newDiv);
 
-    transition();
+    slideDiv.replaceChildren(transitionDiv);
 
-    return div;
+    void transition({
+      oldDiv,
+      newDiv,
+      transitionDiv,
+      args: extra,
+      durationMS,
+    });
+  }
 
-    async function fade(): Promise<void> {
-      div.style.display = 'grid';
-
-      oldDiv.style.gridColumn = '1';
-      oldDiv.style.gridRow = '1';
-
-      newDiv.style.gridColumn = '1';
-      newDiv.style.gridRow = '1';
-
-      oldDiv.style.opacity = '1';
-      newDiv.style.opacity = '0';
-
-      const start = Date.now();
-
-      while (true) {
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-
-        const tMS = Date.now() - start;
-        const t = tMS / durationMS;
-
-        if (t >= 1) break;
-
-        newDiv.style.opacity = String(t);
-        oldDiv.style.opacity = String(1 - t);
-      }
-
-      renderChild();
-    }
-  });
-
-  return div;
-
-  function renderChild(): void {
+  function renderSlide(): void {
     const child = element.children[i];
+
     const rendered = element.renderNode(child);
 
-    div.replaceChildren(rendered);
+    slideDiv.replaceChildren(rendered);
   }
 });
