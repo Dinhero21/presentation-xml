@@ -1,0 +1,17 @@
+- [x] Renderer
+  - [x] Local Custom Elements
+  - [x] Attributes
+    - [x] Propagating
+  - [x] Slides
+    - [x] Intro (big text: title, subtitle)
+    - [x] QA (question, answer)
+  - [x] text
+    - [x] bold
+    - [x] italic
+  - [ ] image
+  - [x] transition
+    - [x] as property
+- [ ] Public Self-Hosted Renderer
+  - [ ] Drag & Drop
+  - [ ] Export URL
+    - [ ] Gzip Compression
