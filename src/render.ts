@@ -1,28 +1,43 @@
 import { ELEMENT_MAP, PresentationElement, Renderer } from './element/index.js';
 
-/**
- * Node (commonly XMLElement) -> HTMLElement
- */
-export default function render(
-  node: Node,
-  custom = new Map<string, Renderer>(),
-): Node {
-  if (!(node instanceof Element)) return node.cloneNode(true);
+export class PresentationRenderer {
+  public readonly custom: Map<string, Renderer> = new Map();
 
-  const element = new PresentationElement(node, custom);
+  public renderNode<T extends Node>(
+    node: T,
+  ): T extends Element ? HTMLElement : Node {
+    if (!(node instanceof Element)) {
+      return node.cloneNode(true) as T extends Element ? never : Node;
+    }
 
-  const name = node.tagName;
-
-  if (name.startsWith('html.')) {
-    const html = document.createElement(name.slice('html.'.length));
-    element.renderInto(html);
-
-    return html;
+    return this.renderElement(node);
   }
 
-  const renderer = ELEMENT_MAP.get(name) ?? custom.get(name);
+  public renderElement(original: Element): HTMLElement {
+    const element = new PresentationElement(original, this.clone());
 
-  if (renderer === undefined) throw new Error(`Unknown element: ${name}`);
+    const name = original.tagName;
 
-  return renderer(element);
+    if (name.startsWith('html.')) {
+      const html = document.createElement(name.slice('html.'.length));
+      element.renderInto(html);
+
+      return html;
+    }
+
+    const renderer = ELEMENT_MAP.get(name) ?? this.custom.get(name);
+
+    if (renderer === undefined) throw new Error(`Unknown element: ${name}`);
+
+    return renderer(element);
+  }
+
+  // ? Should I use structuredClone instead?
+  public clone(): PresentationRenderer {
+    const renderer = new PresentationRenderer();
+
+    for (const [k, v] of this.custom) renderer.custom.set(k, v);
+
+    return renderer;
+  }
 }

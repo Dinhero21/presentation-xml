@@ -27,7 +27,7 @@ registerElement('presentation', (element) => {
 
       const start = Date.now();
 
-      while (true) {
+      while (transitionDiv.parentElement === slideDiv) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
         const tMS = Date.now() - start;
@@ -37,11 +37,44 @@ registerElement('presentation', (element) => {
 
         newDiv.style.opacity = String(t);
       }
-
-      renderSlide();
     },
     async slide({ oldDiv, newDiv, transitionDiv, durationMS, args }) {
-      const axis: 'X' | 'Y' = args.includes('vertical') ? 'Y' : 'X';
+      const axisBase: 'X' | 'Y' = vertical ? 'Y' : 'X';
+      let axisPage: 'X' | 'Y' | undefined;
+      let axisSpecified: 'X' | 'Y' | undefined;
+
+      for (const arg of args) {
+        if (arg === 'horizontal') {
+          axisSpecified = 'X';
+          continue;
+        }
+
+        if (arg === 'vertical') {
+          axisSpecified = 'Y';
+          continue;
+        }
+
+        if (arg === 'auto') {
+          axisSpecified = undefined;
+          continue;
+        }
+
+        if (arg === 'page=horizontal') {
+          axisPage = 'X';
+        }
+
+        if (arg === 'page=vertical') {
+          axisPage = 'Y';
+        }
+
+        // ? Should I include?
+        // page already defaults to horizontal because of technical limitations
+        if (arg === 'page=auto') {
+          axisPage = undefined;
+        }
+      }
+
+      const axis = axisSpecified || (page && axisPage) || axisBase;
 
       transitionDiv.style.display = 'grid';
 
@@ -53,7 +86,7 @@ registerElement('presentation', (element) => {
 
       const start = Date.now();
 
-      while (true) {
+      while (transitionDiv.parentElement === slideDiv) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
         const tMS = Date.now() - start;
@@ -64,8 +97,6 @@ registerElement('presentation', (element) => {
         oldDiv.style.transform = `translate${axis}(${-t * direction * 100}%)`;
         newDiv.style.transform = `translate${axis}(${(1 - t) * direction * 100}%)`;
       }
-
-      renderSlide();
     },
   };
 
@@ -84,23 +115,61 @@ registerElement('presentation', (element) => {
 
   let i = minIndex;
 
+  let lastRenderableChildI = i;
+
   let direction = 0;
+  // ArrowUp or ArrowDown
+  let vertical = false;
+  // PageUp or PageDown
+  let page = false;
 
   document.addEventListener('keydown', (event) => {
     direction = 0;
 
+    // ? Should I make Page[Up|Down] horizontal or vertical?
+    // It might seem like an obvious choice at first but remember
+    // that PageUp and PageDown are used by presentation controllers
+    // to navigate between slides.
+
     switch (event.key) {
-      case 'ArrowLeft':
       case 'ArrowUp':
+        direction = -1;
+        vertical = true;
+        page = false;
+        break;
+
       case 'PageUp':
         direction = -1;
+        vertical = false;
+        page = true;
         break;
-      case 'ArrowRight':
+
+      case 'ArrowLeft':
+        direction = -1;
+        vertical = false;
+        page = false;
+        break;
+
       case 'ArrowDown':
+        direction = +1;
+        vertical = true;
+        page = false;
+        break;
+
       case 'PageDown':
         direction = +1;
+        vertical = false;
+        page = true;
+        break;
+
+      case 'ArrowRight':
+        direction = +1;
+        vertical = false;
+        page = false;
         break;
     }
+
+    lastRenderableChildI = i;
 
     i += direction;
 
@@ -110,7 +179,7 @@ registerElement('presentation', (element) => {
     updateSlide();
   });
 
-  updateSlide();
+  renderSlide();
 
   return slideDiv;
 
@@ -125,6 +194,11 @@ registerElement('presentation', (element) => {
     }
 
     if (child.tagName.toLowerCase() === 'transition') {
+      i += direction;
+
+      if (i < minIndex) i = minIndex;
+      if (i > maxIndex) i = maxIndex;
+
       executeTransition([...transitionArgs, ...child.innerHTML.split(' ')]);
 
       return;
@@ -162,19 +236,23 @@ registerElement('presentation', (element) => {
       extra.push(arg);
     }
 
-    const oldChild = element.children[i - direction];
-    const newChild = element.children[i + direction];
+    const oldChild = element.children[lastRenderableChildI];
+    const newChild = element.children[i];
 
-    i += direction;
+    if (oldChild === newChild) return;
 
-    const oldRendered = element.renderNode(oldChild);
-    const newRendered = element.renderNode(newChild);
+    const oldRendered = element.renderer.renderNode(oldChild);
+    const newRendered = element.renderer.renderNode(newChild);
 
     const oldDiv = document.createElement('div');
     oldDiv.appendChild(oldRendered);
 
+    oldDiv.id = 'old';
+
     const newDiv = document.createElement('div');
     newDiv.appendChild(newRendered);
+
+    newDiv.id = 'new';
 
     const transitionDiv = document.createElement('div');
     transitionDiv.appendChild(oldDiv);
@@ -182,19 +260,27 @@ registerElement('presentation', (element) => {
 
     slideDiv.replaceChildren(transitionDiv);
 
-    void transition({
-      oldDiv,
-      newDiv,
-      transitionDiv,
-      args: extra,
-      durationMS,
-    });
+    void (async () => {
+      await transition({
+        oldDiv,
+        newDiv,
+        transitionDiv,
+        args: extra,
+        durationMS,
+      });
+
+      // When transitionDiv is removed, we should abort the function
+      // however, the function still resolves when aborted, which means
+      // we must check if transitionDiv was removed / it was aborted
+      // to not remove the current transition (that overruled it)
+      if (transitionDiv.parentElement === slideDiv) renderSlide();
+    })();
   }
 
   function renderSlide(): void {
     const child = element.children[i];
 
-    const rendered = element.renderNode(child);
+    const rendered = element.renderer.renderNode(child);
 
     slideDiv.replaceChildren(rendered);
   }

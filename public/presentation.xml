@@ -3,7 +3,6 @@
     <title>Among Us</title>
     <subtitle>is sus</subtitle>
   </Intro>
-  <transition>fade</transition>
   <QA>
     <question>What is it?</question>
     <answer>Among Us is a video game made by Innersloth</answer>

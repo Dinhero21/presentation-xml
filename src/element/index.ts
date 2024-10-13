@@ -1,16 +1,17 @@
-import render from '../render.js';
+import { PresentationRenderer } from '../render.js';
 
+/**
+ * Element wrapper
+ */
 export class PresentationElement {
   public readonly default: Record<string, string | undefined> = {};
 
   constructor(
     public readonly original: Element,
-    public readonly custom = new Map<string, Renderer>(),
+    public readonly renderer: PresentationRenderer,
   ) {}
 
-  public renderNode(node: Node): Node {
-    return render(node, this.custom);
-  }
+  // #region Should this be in PresentationElement or PresentationRenderer?
 
   public renderInto(other: HTMLElement): void {
     other.style.cssText += this.getAttribute('style') ?? '';
@@ -20,11 +21,13 @@ export class PresentationElement {
 
   protected renderChildren(other: Node): void {
     for (const node of this.original.childNodes) {
-      const rendered = this.renderNode(node);
+      const rendered = this.renderer.renderNode(node);
 
       other.appendChild(rendered);
     }
   }
+
+  // #endregion
 
   public getTheme(): string {
     let theme = getAttribute(this.original, 'theme') ?? 'light';
@@ -93,9 +96,17 @@ export class PresentationElement {
     this.original.setAttribute(name, value);
   }
 
+  // #region aliases
+
+  public get custom(): Map<string, Renderer> {
+    return this.renderer.custom;
+  }
+
   public get children(): HTMLCollection {
     return this.original.children;
   }
+
+  // #endregion
 }
 
 export type Renderer = (element: PresentationElement) => HTMLElement;
