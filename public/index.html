@@ -1,12 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Presentation</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="bundle.js" type="module"></script>
   </head>
   <body>
-    <script src="bundle.js" type="module"></script>
+    <div class="center" style="flex-direction: column; gap: 2em">
+      <input type="file" id="file-upload" />
+      <div>
+        <span>Compression:</span>
+        <select id="compression">
+          <option selected>none</option>
+          <option>deflate</option>
+          <option>deflate-raw</option>
+          <option>gzip</option>
+        </select>
+      </div>
+      <button id="go">Generate URL!</button>
+    </div>
   </body>
 </html>

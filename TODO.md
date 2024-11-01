@@ -11,7 +11,10 @@
   - [ ] image
   - [x] transition
     - [x] as property
+  - [ ] progress
+    - [ ] as property (still unsure of if I should do this)
 - [ ] Public Self-Hosted Renderer
   - [ ] Drag & Drop
   - [ ] Export URL
     - [ ] Gzip Compression
+- [ ] JSX (piggybacking some other framework)
