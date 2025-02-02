@@ -4,13 +4,13 @@ import { renderText } from './text.js';
 
 registerElement('QA', (element) => {
   element.custom.set('question', (element) => {
-    element.default.size = '5em';
+    element.default.size = '5rem';
 
     return renderText(element);
   });
 
   element.custom.set('answer', (element) => {
-    element.default.size = '2em';
+    element.default.size = '2rem';
     element.default.color = 'gray';
 
     return renderText(element);

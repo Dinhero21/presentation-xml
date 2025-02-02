@@ -20,7 +20,7 @@ export function renderText(element: PresentationElement) {
       light: 'black',
       dark: 'white',
     }[element.getTheme()] ?? '';
-  element.default.size ??= '3em';
+  element.default.size ??= '3rem';
 
   const p = document.createElement('p');
   element.renderInto(p);
