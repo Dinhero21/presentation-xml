@@ -1,10 +1,11 @@
 import multiEntry from '@rollup/plugin-multi-entry';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
+import nodeResolve from '@rollup/plugin-node-resolve';
 
 const DEV = process.env.ROLLUP_WATCH === 'true';
 
-const plugins = [multiEntry(), typescript()];
+const plugins = [multiEntry(), typescript(), nodeResolve()];
 
 if (!DEV) {
   plugins.push(terser());
