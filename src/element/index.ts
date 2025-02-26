@@ -30,10 +30,15 @@ export class PresentationElement {
   // #endregion
 
   public getTheme(): string {
-    let theme = getAttribute(this.original, 'theme') ?? 'light';
+    let theme = 'light';
 
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       theme = 'dark';
+    }
+
+    const themeAttribute = getAttribute(this.original, 'theme');
+    if (themeAttribute !== null) {
+      theme = themeAttribute;
     }
 
     return theme;
