@@ -18,6 +18,8 @@ export default {
     format: 'es',
     sourcemap: true,
     footer: 'await entry();',
+    // TODO: chunking
+    inlineDynamicImports: true,
   },
   plugins,
 };

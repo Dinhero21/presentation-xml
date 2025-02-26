@@ -10,7 +10,7 @@ registerElement('QA', (element) => {
   });
 
   element.custom.set('answer', (element) => {
-    element.default.size = '2rem';
+    element.default.size = '3rem';
     element.default.color = 'gray';
 
     return renderText(element);
