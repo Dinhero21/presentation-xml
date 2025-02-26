@@ -11,14 +11,26 @@ const highlighterPromise = createHighlighter({
 registerElement('code', (element) => {
   const span = document.createElement('span');
 
+  let structure = element.getAttribute('structure') as
+    | 'inline'
+    | 'classic'
+    | null;
+
+  if (structure === null) {
+    structure = isText(element.original.parentElement) ? 'inline' : 'classic';
+  }
+
   highlighterPromise.then((highlighter) => {
-    span.innerHTML = highlighter.codeToHtml(element.original.innerHTML, {
-      lang: 'javascript',
-      theme: { dark: 'one-dark-pro', light: 'one-light' }[
-        element.getTheme()
-      ] as 'one-dark-pro' | 'one-light',
-      structure: isText(element.original.parentElement) ? 'inline' : 'classic',
-    });
+    span.innerHTML = highlighter.codeToHtml(
+      element.original.textContent ?? element.original.innerHTML,
+      {
+        lang: 'javascript',
+        theme: { dark: 'one-dark-pro', light: 'one-light' }[
+          element.getTheme()
+        ] as 'one-dark-pro' | 'one-light',
+        structure,
+      },
+    );
   });
 
   return span;
