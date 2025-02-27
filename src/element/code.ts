@@ -1,7 +1,8 @@
 import { createHighlighter } from 'shiki/bundle/web';
 
+import { getTextContent } from '../util/element.js';
 import { registerElement } from './index.js';
-import { isText } from './text.js';
+import { isText, renderText } from './text.js';
 
 const highlighterPromise = createHighlighter({
   themes: ['one-dark-pro', 'one-light'],
@@ -9,7 +10,17 @@ const highlighterPromise = createHighlighter({
 });
 
 registerElement('code', (element) => {
-  const span = document.createElement('span');
+  const textContent = getTextContent(element.original);
+
+  // why not clearing element.original's children?
+  //   apparently that causes this function to get
+  //   called again on the new element
+
+  // this is so renderChildren isn't
+  // called (it is in renderText),
+  // for performance reasons
+  (element as any).renderChildren = () => {};
+  const text = renderText(element);
 
   let structure = element.getAttribute('structure') as
     | 'inline'
@@ -21,17 +32,14 @@ registerElement('code', (element) => {
   }
 
   highlighterPromise.then((highlighter) => {
-    span.innerHTML = highlighter.codeToHtml(
-      element.original.textContent ?? element.original.innerHTML,
-      {
-        lang: 'javascript',
-        theme: { dark: 'one-dark-pro', light: 'one-light' }[
-          element.getTheme()
-        ] as 'one-dark-pro' | 'one-light',
-        structure,
-      },
-    );
+    text.innerHTML = highlighter.codeToHtml(textContent, {
+      lang: element.getAttribute('lang') ?? 'js',
+      theme: { dark: 'one-dark-pro', light: 'one-light' }[
+        element.getTheme()
+      ] as 'one-dark-pro' | 'one-light',
+      structure,
+    });
   });
 
-  return span;
+  return text;
 });
