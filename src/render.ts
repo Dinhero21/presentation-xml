@@ -25,7 +25,7 @@ export class PresentationRenderer {
       return html;
     }
 
-    const renderer = ELEMENT_MAP.get(name) ?? this.custom.get(name);
+    const renderer = this.custom.get(name) ?? ELEMENT_MAP.get(name);
 
     if (renderer === undefined) throw new Error(`Unknown element: ${name}`);
 
