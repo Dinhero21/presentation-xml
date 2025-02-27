@@ -2,7 +2,7 @@ import { registerElement } from './index.js';
 import { renderSlide } from './slide.js';
 import { renderText } from './text.js';
 
-registerElement('Intro', (element) => {
+registerElement('Chapter', (element) => {
   element.custom.set('title', (element) => {
     element.default.size = '10rem';
 

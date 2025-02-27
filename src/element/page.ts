@@ -2,16 +2,17 @@ import { registerElement } from './index.js';
 import { renderSlide } from './slide.js';
 import { renderText } from './text.js';
 
-registerElement('QA', (element) => {
-  element.custom.set('question', (element) => {
-    element.default.size = '5rem';
+registerElement('Page', (element) => {
+  element.custom.set('important', (element) => {
+    element.default.size ??= '5rem';
+    element.default.color ??= 'white';
 
     return renderText(element);
   });
 
-  element.custom.set('answer', (element) => {
-    element.default.size = '3rem';
-    element.default.color = 'gray';
+  element.custom.set('text', (element) => {
+    element.default.size ??= '2.5rem';
+    element.default.color ??= 'gray';
 
     return renderText(element);
   });
@@ -23,8 +24,8 @@ registerElement('QA', (element) => {
   outer.replaceChildren(inner);
 
   inner.style.margin = 'auto';
-  inner.style.width = '90vw';
-  inner.style.height = '90vh';
+  inner.style.width = 'calc(100vw - min(10vw, 10vh))';
+  inner.style.height = 'calc(100vh - min(10vw, 10vh))';
 
   return outer;
 });
